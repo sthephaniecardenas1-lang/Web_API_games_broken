@@ -32,8 +32,17 @@ def list_games(session: Session):
 
 
 def get_game(game_id: int, session: Session):
-    # PISTA: ¿qué debería devolver una API cuando el recurso solicitado no existe?
-    return session.get(Game, game_id)
+    # session.get devuelve None si el id no existe
+    game = session.get(Game, game_id)
+
+    # si no existe se responde 404 con el mensaje pedido, en vez de devolver None
+    if not game:
+        raise HTTPException(
+            status_code=404,
+            detail="Game not found"
+        )
+
+    return game
 
 
 def delete_game(game_id: int, session: Session):
