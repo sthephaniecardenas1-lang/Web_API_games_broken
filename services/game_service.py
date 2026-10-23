@@ -56,7 +56,8 @@ def delete_game(game_id: int, session: Session):
 
     session.delete(game)
 
-    # PISTA: eliminar un objeto de una sesión no necesariamente significa
-    # que la eliminación haya quedado guardada en SQLite.
+    # delete() solo marca el registro para borrarlo dentro de la sesión;
+    # el commit es lo que confirma el borrado en arcade.db
+    session.commit()
 
     return {"message": "Game deleted"}
