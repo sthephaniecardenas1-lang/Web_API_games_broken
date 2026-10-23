@@ -1,0 +1,299 @@
+RESUMEN
+P03a  APROBADO  200 (esperado 200)  Listar con la base vacía
+P01   APROBADO  201 (esperado 201)  Crear juego válido (Hollow Knight)
+P01b  APROBADO  201 (esperado 201)  Crear segundo juego (Hades)
+P01c  APROBADO  201 (esperado 201)  Crear tercer juego (Celeste válido)
+P02   APROBADO  422 (esperado 422)  Stock 0 rechazado
+P02b  APROBADO  422 (esperado 422)  Stock 51 rechazado
+P02c  APROBADO  201 (esperado 201)  Stock 1 aceptado (límite)
+P02d  APROBADO  422 (esperado 422)  Título de 2 caracteres rechazado
+P03   APROBADO  200 (esperado 200)  Listar juegos (devuelve una lista)
+P04   APROBADO  200 (esperado 200)  Consultar juego existente
+P05   APROBADO  404 (esperado 404)  Consultar juego inexistente
+P05b  APROBADO  422 (esperado 422)  ID no entero
+P07a  APROBADO  200 (esperado 200)  Listar ANTES de reiniciar
+P06   APROBADO  200 (esperado 200)  Eliminar juego 1
+P06b  APROBADO  404 (esperado 404)  Consultar el eliminado
+P06c  APROBADO  404 (esperado 404)  Eliminar de nuevo el mismo ID
+P07b  APROBADO  200 (esperado 200)  Listar tras eliminar (foto previa al reinicio)
+P07c  APROBADO  200 (esperado 200)  Listar DESPUÉS de reiniciar
+P07d  APROBADO  404 (esperado 404)  El juego eliminado no reaparece
+P07e  APROBADO  200 (esperado 200)  Un juego conservado sigue existiendo
+
+Total: 20 | aprobadas: 20 | fallidas: 0
+
+
+===== P03a — Listar con la base vacía =====
+$ curl -i -X GET http://127.0.0.1:8000/games
+
+HTTP/1.1 200 OK
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 2
+content-type: application/json
+
+[]
+
+Esperado: 200 -> APROBADO
+
+===== P01 — Crear juego válido (Hollow Knight) =====
+$ curl -i -X POST http://127.0.0.1:8000/games -H 'Content-Type: application/json' -d '{"title": "Hollow Knight", "genre": "Metroidvania", "platform": "PC", "stock": 5}'
+
+HTTP/1.1 201 Created
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 95
+content-type: application/json
+
+{"id":1,"title":"Hollow Knight","genre":"Metroidvania","platform":"PC","stock":5,"active":true}
+
+Esperado: 201 -> APROBADO
+
+===== P01b — Crear segundo juego (Hades) =====
+$ curl -i -X POST http://127.0.0.1:8000/games -H 'Content-Type: application/json' -d '{"title": "Hades", "genre": "Roguelike", "platform": "Switch", "stock": 8, "active": false}'
+
+HTTP/1.1 201 Created
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 89
+content-type: application/json
+
+{"id":2,"title":"Hades","genre":"Roguelike","platform":"Switch","stock":8,"active":false}
+
+Esperado: 201 -> APROBADO
+
+===== P01c — Crear tercer juego (Celeste válido) =====
+$ curl -i -X POST http://127.0.0.1:8000/games -H 'Content-Type: application/json' -d '{"title": "Celeste", "genre": "Plataformas", "platform": "PC", "stock": 3}'
+
+HTTP/1.1 201 Created
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 88
+content-type: application/json
+
+{"id":3,"title":"Celeste","genre":"Plataformas","platform":"PC","stock":3,"active":true}
+
+Esperado: 201 -> APROBADO
+
+===== P02 — Stock 0 rechazado =====
+$ curl -i -X POST http://127.0.0.1:8000/games -H 'Content-Type: application/json' -d '{"title": "Celeste", "genre": "Plataformas", "platform": "PC", "stock": 0}'
+
+HTTP/1.1 422 Unprocessable Entity
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 141
+content-type: application/json
+
+{"detail":[{"type":"greater_than_equal","loc":["body","stock"],"msg":"Input should be greater than or equal to 1","input":0,"ctx":{"ge":1}}]}
+
+Esperado: 422 -> APROBADO
+
+===== P02b — Stock 51 rechazado =====
+$ curl -i -X POST http://127.0.0.1:8000/games -H 'Content-Type: application/json' -d '{"title": "Celeste", "genre": "Plataformas", "platform": "PC", "stock": 51}'
+
+HTTP/1.1 422 Unprocessable Entity
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 138
+content-type: application/json
+
+{"detail":[{"type":"less_than_equal","loc":["body","stock"],"msg":"Input should be less than or equal to 50","input":51,"ctx":{"le":50}}]}
+
+Esperado: 422 -> APROBADO
+
+===== P02c — Stock 1 aceptado (límite) =====
+$ curl -i -X POST http://127.0.0.1:8000/games -H 'Content-Type: application/json' -d '{"title": "Tetris", "genre": "Puzzle", "platform": "PC", "stock": 1}'
+
+HTTP/1.1 201 Created
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 82
+content-type: application/json
+
+{"id":4,"title":"Tetris","genre":"Puzzle","platform":"PC","stock":1,"active":true}
+
+Esperado: 201 -> APROBADO
+
+===== P02d — Título de 2 caracteres rechazado =====
+$ curl -i -X POST http://127.0.0.1:8000/games -H 'Content-Type: application/json' -d '{"title": "Ab", "genre": "Puzzle", "platform": "PC", "stock": 5}'
+
+HTTP/1.1 422 Unprocessable Entity
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 148
+content-type: application/json
+
+{"detail":[{"type":"string_too_short","loc":["body","title"],"msg":"String should have at least 3 characters","input":"Ab","ctx":{"min_length":3}}]}
+
+Esperado: 422 -> APROBADO
+
+===== P03 — Listar juegos (devuelve una lista) =====
+$ curl -i -X GET http://127.0.0.1:8000/games
+
+HTTP/1.1 200 OK
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 359
+content-type: application/json
+
+[{"id":1,"title":"Hollow Knight","genre":"Metroidvania","platform":"PC","stock":5,"active":true},{"id":2,"title":"Hades","genre":"Roguelike","platform":"Switch","stock":8,"active":false},{"id":3,"title":"Celeste","genre":"Plataformas","platform":"PC","stock":3,"active":true},{"id":4,"title":"Tetris","genre":"Puzzle","platform":"PC","stock":1,"active":true}]
+
+Esperado: 200 -> APROBADO
+
+===== P04 — Consultar juego existente =====
+$ curl -i -X GET http://127.0.0.1:8000/games/1
+
+HTTP/1.1 200 OK
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 95
+content-type: application/json
+
+{"id":1,"title":"Hollow Knight","genre":"Metroidvania","platform":"PC","stock":5,"active":true}
+
+Esperado: 200 -> APROBADO
+
+===== P05 — Consultar juego inexistente =====
+$ curl -i -X GET http://127.0.0.1:8000/games/999
+
+HTTP/1.1 404 Not Found
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 27
+content-type: application/json
+
+{"detail":"Game not found"}
+
+Esperado: 404 -> APROBADO
+
+===== P05b — ID no entero =====
+$ curl -i -X GET http://127.0.0.1:8000/games/abc
+
+HTTP/1.1 422 Unprocessable Entity
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 152
+content-type: application/json
+
+{"detail":[{"type":"int_parsing","loc":["path","game_id"],"msg":"Input should be a valid integer, unable to parse string as an integer","input":"abc"}]}
+
+Esperado: 422 -> APROBADO
+
+===== P07a — Listar ANTES de reiniciar =====
+$ curl -i -X GET http://127.0.0.1:8000/games
+
+HTTP/1.1 200 OK
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 359
+content-type: application/json
+
+[{"id":1,"title":"Hollow Knight","genre":"Metroidvania","platform":"PC","stock":5,"active":true},{"id":2,"title":"Hades","genre":"Roguelike","platform":"Switch","stock":8,"active":false},{"id":3,"title":"Celeste","genre":"Plataformas","platform":"PC","stock":3,"active":true},{"id":4,"title":"Tetris","genre":"Puzzle","platform":"PC","stock":1,"active":true}]
+
+Esperado: 200 -> APROBADO
+
+===== P06 — Eliminar juego 1 =====
+$ curl -i -X DELETE http://127.0.0.1:8000/games/1
+
+HTTP/1.1 200 OK
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 26
+content-type: application/json
+
+{"message":"Game deleted"}
+
+Esperado: 200 -> APROBADO
+
+===== P06b — Consultar el eliminado =====
+$ curl -i -X GET http://127.0.0.1:8000/games/1
+
+HTTP/1.1 404 Not Found
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 27
+content-type: application/json
+
+{"detail":"Game not found"}
+
+Esperado: 404 -> APROBADO
+
+===== P06c — Eliminar de nuevo el mismo ID =====
+$ curl -i -X DELETE http://127.0.0.1:8000/games/1
+
+HTTP/1.1 404 Not Found
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 27
+content-type: application/json
+
+{"detail":"Game not found"}
+
+Esperado: 404 -> APROBADO
+
+===== P07b — Listar tras eliminar (foto previa al reinicio) =====
+$ curl -i -X GET http://127.0.0.1:8000/games
+
+HTTP/1.1 200 OK
+date: Fri, 23 Oct 2026 22:27:00 GMT
+server: uvicorn
+content-length: 263
+content-type: application/json
+
+[{"id":2,"title":"Hades","genre":"Roguelike","platform":"Switch","stock":8,"active":false},{"id":3,"title":"Celeste","genre":"Plataformas","platform":"PC","stock":3,"active":true},{"id":4,"title":"Tetris","genre":"Puzzle","platform":"PC","stock":1,"active":true}]
+
+Esperado: 200 -> APROBADO
+
+===== Uvicorn detenido con Ctrl+C y vuelto a iniciar desde la misma carpeta =====
+INFO:     127.0.0.1:37968 - "GET /games HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [154]
+INFO:     Stopping reloader process [151]
+
+INFO:     Will watch for changes in these directories: ['/tmp/games_run']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [175] using StatReload
+INFO:     Started server process [178]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+
+===== P07c — Listar DESPUÉS de reiniciar =====
+$ curl -i -X GET http://127.0.0.1:8000/games
+
+HTTP/1.1 200 OK
+date: Fri, 23 Oct 2026 22:27:01 GMT
+server: uvicorn
+content-length: 263
+content-type: application/json
+
+[{"id":2,"title":"Hades","genre":"Roguelike","platform":"Switch","stock":8,"active":false},{"id":3,"title":"Celeste","genre":"Plataformas","platform":"PC","stock":3,"active":true},{"id":4,"title":"Tetris","genre":"Puzzle","platform":"PC","stock":1,"active":true}]
+
+Esperado: 200 -> APROBADO
+
+===== P07d — El juego eliminado no reaparece =====
+$ curl -i -X GET http://127.0.0.1:8000/games/1
+
+HTTP/1.1 404 Not Found
+date: Fri, 23 Oct 2026 22:27:01 GMT
+server: uvicorn
+content-length: 27
+content-type: application/json
+
+{"detail":"Game not found"}
+
+Esperado: 404 -> APROBADO
+
+===== P07e — Un juego conservado sigue existiendo =====
+$ curl -i -X GET http://127.0.0.1:8000/games/2
+
+HTTP/1.1 200 OK
+date: Fri, 23 Oct 2026 22:27:01 GMT
+server: uvicorn
+content-length: 89
+content-type: application/json
+
+{"id":2,"title":"Hades","genre":"Roguelike","platform":"Switch","stock":8,"active":false}
+
+Esperado: 200 -> APROBADO
