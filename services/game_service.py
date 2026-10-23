@@ -16,8 +16,11 @@ def create_game(game_data: GameCreate, session: Session):
 
     session.add(game)
 
-    # PISTA: recuerda el orden visto en clase para guardar un objeto
-    # y luego recargar los valores generados por la base de datos.
+    # orden correcto: add -> commit -> refresh
+    # sin commit el insert nunca se confirma en arcade.db y refresh() falla,
+    # porque el objeto todavía no existe en la base de datos
+    session.commit()
+    # recarga el juego ya guardado para obtener el id que generó SQLite
     session.refresh(game)
 
     return game
